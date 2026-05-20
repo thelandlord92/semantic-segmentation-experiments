@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\bwindapo\OneDrive - ETH Zurich\Documents\GitHub\semantic-segmentation-experiments\src\e57_exports\build\CMakeFiles\9104329b01b8654d7fa11b8be7bc85b9\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{FB10F7DF-BE55-328C-833E-52BD9096D4B5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

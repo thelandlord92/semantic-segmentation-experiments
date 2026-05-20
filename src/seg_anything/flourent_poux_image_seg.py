@@ -25,7 +25,18 @@ image = cv2.imread(str(image_path))
 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
 # create the mask generator
-mask_generator = SamAutomaticMaskGenerator(sam)
+mask_generator = SamAutomaticMaskGenerator(
+    sam,
+    points_per_side=64,
+    points_per_batch=32,
+    pred_iou_thresh=0.80,
+    stability_score_thresh=0.90,
+    crop_n_layers=1,
+    crop_nms_thresh=0.7,
+    box_nms_thresh=0.7,
+    crop_n_points_downscale_factor=2,
+    min_mask_region_area=0,
+)
 
 # generate masks for the entire image
 masks = mask_generator.generate(image)
@@ -36,4 +47,4 @@ fig.add_axes([0,0,1,1])
 plt.imshow(image)
 color_mask = sam_masks(masks)
 plt.axis('off')
-plt.savefig(parent_dir / "results/warehouse_mask.jpg")
+plt.savefig(parent_dir / "results/warehouse_mask2.jpg")

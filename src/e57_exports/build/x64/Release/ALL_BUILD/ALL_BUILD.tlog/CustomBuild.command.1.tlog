@@ -1,0 +1,10 @@
+^C:\USERS\BWINDAPO\ONEDRIVE - ETH ZURICH\DOCUMENTS\GITHUB\SEMANTIC-SEGMENTATION-EXPERIMENTS\SRC\E57_EXPORTS\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" "-SC:/Users/bwindapo/OneDrive - ETH Zurich/Documents/GitHub/semantic-segmentation-experiments/src/e57_exports" "-BC:/Users/bwindapo/OneDrive - ETH Zurich/Documents/GitHub/semantic-segmentation-experiments/src/e57_exports/build" --check-stamp-file "C:/Users/bwindapo/OneDrive - ETH Zurich/Documents/GitHub/semantic-segmentation-experiments/src/e57_exports/build/CMakeFiles/generate.stamp"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

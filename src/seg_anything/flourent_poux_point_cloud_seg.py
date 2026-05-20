@@ -91,7 +91,7 @@ print(modified_point_cloud.shape)
 
 
 ###### code to visualize the colored point cloud ########
-view_point_cloud = False
+view_point_cloud = True
 if view_point_cloud:
     pcd_colored = o3d.geometry.PointCloud()
     pcd_colored.points = o3d.utility.Vector3dVector(modified_point_cloud[:, :3])
@@ -100,5 +100,7 @@ if view_point_cloud:
 
 
 ###### code to export the colored point cloud ########
-cloud_path = parent_dir / "results/itc_colored_point_cloud.las"
-export_point_cloud(cloud_path, modified_point_cloud)   
+export_point_cloud = False
+if export_point_cloud:
+    cloud_path = parent_dir / "results/itc_colored_point_cloud.las"
+    export_point_cloud(cloud_path, modified_point_cloud)   

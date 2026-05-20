@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\bwindapo\OneDrive - ETH Zurich\Documents\GitHub\semantic-segmentation-experiments\src\e57_exports\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\bwindapo\OneDrive - ETH Zurich\Documents\GitHub\semantic-segmentation-experiments\src\e57_exports\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{A83490D2-72C9-3388-9631-A088FB3C089D}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

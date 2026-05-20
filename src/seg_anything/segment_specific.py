@@ -1,5 +1,5 @@
 from segment_anything import sam_model_registry, SamPredictor
-from pathlib import Path    
+from pathlib import Path
 import numpy as np
 import cv2
 
@@ -34,6 +34,6 @@ mask_image[mask] = [255, 0, 0]  # red color
 # overlay the mask on the original image
 overlay_image = cv2.addWeighted(image, 0.5, mask_image, 0.5, 0)
 
-# save the overlay image    
+# save the overlay image
 output_path = parent_dir / "data/images/warehouse_mask.png"
 cv2.imwrite(str(output_path), cv2.cvtColor(overlay_image, cv2.COLOR_RGB2BGR))

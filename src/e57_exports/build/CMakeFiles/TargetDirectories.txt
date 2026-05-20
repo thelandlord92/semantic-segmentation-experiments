@@ -1,0 +1,3 @@
+C:/Users/bwindapo/OneDrive - ETH Zurich/Documents/GitHub/semantic-segmentation-experiments/src/e57_exports/build/CMakeFiles/e57_pose_exporter.dir
+C:/Users/bwindapo/OneDrive - ETH Zurich/Documents/GitHub/semantic-segmentation-experiments/src/e57_exports/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/bwindapo/OneDrive - ETH Zurich/Documents/GitHub/semantic-segmentation-experiments/src/e57_exports/build/CMakeFiles/ZERO_CHECK.dir
