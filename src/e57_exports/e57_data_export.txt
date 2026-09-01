@@ -1,0 +1,19 @@
+0. Open CMD in the e57_export directory
+
+1. Create folder with all the E57 file exports included and save in the build folder directory.
+
+2. Optional. Rebuild the export application with the code below on the command line if changes are made to the C++ code. 
+
+cd <directory containing the "CMakeLists.txt" and "main.cpp files>
+
+cmake -B build -S . `
+  -DCMAKE_TOOLCHAIN_FILE=C:\dev\vcpkg\scripts\buildsystems\vcpkg.cmake `
+  -A x64
+
+cmake --build build --config Release
+
+3. Run the executable file with <executable path> <E57 file export path> as below
+
+.\build\Release\e57_pose_exporter.exe "C:\Users\bwindapo\OneDrive - ETH Zurich\Documents\GitHub\semantic-segmentation-experiments\src\e57_exports\building_d"
+
+4. The outputs are saved in the E57 folder. 

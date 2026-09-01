@@ -21,15 +21,15 @@ from simplify_polyline import simplify, vw_simplify
 PARENT_DIR = Path(__file__).parent.parent.parent
 
 # Input COCO JSON files.
-BEAMS_JSON_PATH = PARENT_DIR / "results/timber_beams_annotations.coco.json"
-COLUMNS_JSON_PATH = PARENT_DIR / "results/timber_columns_annotations.coco.json"
+BEAMS_JSON_PATH = PARENT_DIR / "results/beams_annotations.coco.json"
+COLUMNS_JSON_PATH = PARENT_DIR / "results/columns_annotations.coco.json"
 
 # Output merged COCO JSON file.
-OUTPUT_JSON_PATH = PARENT_DIR / "results/timber_structural_annotations.coco.json"
+OUTPUT_JSON_PATH = PARENT_DIR / "results/_annotations.coco.json"
 
 # Class names in the merged COCO JSON.
-BEAM_CLASS_NAME = "timber_beams"
-COLUMN_CLASS_NAME = "timber_columns"
+BEAM_CLASS_NAME = "timber beams"
+COLUMN_CLASS_NAME = "timber columns"
 
 # Simplification settings.
 SIMPLIFY_POLYGONS = True
@@ -54,7 +54,7 @@ PLOT_SIMPLIFIED_POLYGONS = True
 SOURCE_IMAGE_DIR = PARENT_DIR / "data/images/hxe_poses"
 
 # Folder where plotted polygon check images will be saved.
-PLOT_DIR = PARENT_DIR / "results/coco_polygon_checks_4.0"
+PLOT_DIR = PARENT_DIR / "results/coco_polygon_checks_4.0_rev1"
 
 
 # =============================================================================
