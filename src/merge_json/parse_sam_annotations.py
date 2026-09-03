@@ -4,15 +4,15 @@ from pathlib import Path
 # Parent dir of the current file
 parent_dir = Path(__file__).parent.parent.parent
 
-# Results folder directory
-results_dir = parent_dir / "results"
+# Data folder directory
+data_dir = parent_dir / "data" / "sam_segmentations"
 
 # Input files
-beams_json_path = results_dir / "timber_beams_annotations.coco.json"
-columns_json_path = results_dir / "timber_columns_annotations.coco.json"
+beams_json_path = data_dir / "timber_beams_annotations.coco.json"
+columns_json_path = data_dir / "timber_columns_annotations.coco.json"
 
 # Output file
-output_json_path = results_dir / "timber_beams_columns_annotations.coco.json"
+output_json_path = data_dir / "_annotations.coco.json"
 
 # Load JSON files
 with open(beams_json_path, "r", encoding="utf-8") as f:

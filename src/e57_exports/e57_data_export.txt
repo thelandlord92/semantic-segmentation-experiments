@@ -14,6 +14,6 @@ cmake --build build --config Release
 
 3. Run the executable file with <executable path> <E57 file export path> as below
 
-.\build\Release\e57_pose_exporter.exe "C:\Users\bwindapo\OneDrive - ETH Zurich\Documents\GitHub\semantic-segmentation-experiments\src\e57_exports\building_d"
+.\build\Release\e57_pose_exporter.exe "C:\Users\bwindapo\OneDrive - ETH Zurich\Documents\GitHub\semantic-segmentation-experiments\src\e57_exports\chalet"
 
 4. The outputs are saved in the E57 folder. 
