@@ -13,7 +13,7 @@ from pathlib import Path
 parent_dir = Path(__file__).parent.parent.parent
 
 # Dataset directory
-dataset_dir = parent_dir / "data" / "ground_truth" / "hxe"
+dataset_dir = parent_dir / "data" / "ground_truth" / "hxe" / "exposed_timber"
 
 # Input files
 images_dir = dataset_dir / "images"

@@ -9,13 +9,13 @@ from pathlib import Path
 # DATASET DIRECTORY
 # -----------------------------
 parent_dir = Path(__file__).parent.parent.parent
-dataset_dir = parent_dir / "data" / "sam_segmentations" / "hxe"
+dataset_dir = parent_dir / "data" / "ground_truth" / "hxe" / "exposed_timber"
 
 # -----------------------------
 # CONFIG
 # -----------------------------
-coco_json_path = dataset_dir / "roboflow_dataset" / "_annotations.coco.json"
-images_dir = dataset_dir / "roboflow_dataset"
+coco_json_path = dataset_dir / "_annotations.coco.json"
+images_dir = dataset_dir /"images"
 output_dir = dataset_dir / "mask_visuals"
 
 # -----------------------------
