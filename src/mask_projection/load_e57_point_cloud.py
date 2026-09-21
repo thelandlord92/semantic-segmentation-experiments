@@ -1,8 +1,17 @@
-from mask_projection.mask2cloud.io import load_e57_point_cloud
+from mask_projection.mask2cloud.io import load_e57_folder
+from mask_projection.mask2cloud.visualization import visualize_point_cloud
 
 
-cloud = load_e57_point_cloud(
-    r"C:\Users\bwindapo\polybox\Reality Capture Data\HXE Building\Exports\RTC\260518_Individual Setups\HXE RTC Scan- EXT 001.e57"
+clouds = load_e57_folder(
+    r"C:\Users\bwindapo\polybox\Reality Capture Data\HXE Building\Exports\RTC\260518_Individual Setups",
+    max_files=10,
+    include_colors=True,
 )
 
-print(cloud.points)
+for cloud in clouds:
+    print(cloud.colors)
+
+visualize_point_cloud(
+    clouds,
+    point_size=1.0,
+)
