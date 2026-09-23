@@ -1,11 +1,42 @@
-"""Functions for visualizing point-cloud data with Open3D."""
+"""Functions for creating Open3D point-cloud geometries."""
 
 from collections.abc import Sequence
+from typing import TypeAlias
 
 import numpy as np
 import open3d as o3d
 
 from ..models import PointCloudData
+
+
+PointCloudInput: TypeAlias = (
+    PointCloudData | Sequence[PointCloudData]
+)
+
+
+def create_point_cloud_geometries(
+    point_clouds: PointCloudInput,
+    use_colors: bool = True,
+) -> list[o3d.geometry.PointCloud]:
+    """Create Open3D geometries from point-cloud data.
+
+    Args:
+        point_clouds: One PointCloudData object or a sequence of
+            PointCloudData objects.
+        use_colors: Whether to include RGB values when available.
+
+    Returns:
+        Open3D point-cloud geometries.
+    """
+    clouds = _normalize_point_cloud_input(point_clouds)
+
+    return [
+        to_open3d_point_cloud(
+            cloud,
+            use_colors=use_colors,
+        )
+        for cloud in clouds
+    ]
 
 
 def to_open3d_point_cloud(
@@ -28,96 +59,53 @@ def to_open3d_point_cloud(
     )
 
     if use_colors and point_cloud.colors is not None:
-        colors = _normalize_colors(point_cloud.colors)
-
         geometry.colors = o3d.utility.Vector3dVector(
-            colors
+            _normalize_colors(point_cloud.colors)
         )
 
     return geometry
 
 
-def visualize_point_cloud(
-    point_cloud: PointCloudData | Sequence[PointCloudData],
-    use_colors: bool = True,
-    point_size: float = 1.0,
-    show_coordinate_frame: bool = True,
-    coordinate_frame_size: float = 1.0,
-    window_name: str = "mask2cloud",
-    width: int = 1600,
-    height: int = 900,
-) -> None:
-    """Visualize one or more point clouds with Open3D.
+def _normalize_point_cloud_input(
+    point_clouds: PointCloudInput,
+) -> list[PointCloudData]:
+    """Normalize point-cloud input to a list.
 
     Args:
-        point_cloud: One point cloud or a sequence of point clouds.
-        use_colors: Whether to display RGB values when available.
-        point_size: Size of points in the Open3D viewer.
-        show_coordinate_frame: Whether to show the world XYZ frame.
-        coordinate_frame_size: Size of the world coordinate frame.
-        window_name: Name of the visualization window.
-        width: Width of the visualization window in pixels.
-        height: Height of the visualization window in pixels.
+        point_clouds: One PointCloudData object or a sequence of them.
+
+    Returns:
+        List of PointCloudData objects.
+
+    Raises:
+        ValueError: If no point clouds are supplied.
+        TypeError: If an unsupported object is supplied.
     """
-    if isinstance(point_cloud, PointCloudData):
-        point_clouds = [point_cloud]
-    else:
-        point_clouds = list(point_cloud)
+    if isinstance(point_clouds, PointCloudData):
+        return [point_clouds]
 
-    if not point_clouds:
-        raise ValueError("At least one point cloud is required.")
+    clouds = list(point_clouds)
 
-    geometries = [
-        to_open3d_point_cloud(
-            cloud,
-            use_colors=use_colors,
+    if not clouds:
+        raise ValueError(
+            "At least one point cloud is required."
         )
-        for cloud in point_clouds
-    ]
 
-    if show_coordinate_frame:
-        coordinate_frame = (
-            o3d.geometry.TriangleMesh.create_coordinate_frame(
-                size=coordinate_frame_size,
-                origin=[0.0, 0.0, 0.0],
-            )
+    if not all(
+        isinstance(cloud, PointCloudData)
+        for cloud in clouds
+    ):
+        raise TypeError(
+            "All items must be PointCloudData objects."
         )
-        geometries.append(coordinate_frame)
 
-    visualizer = o3d.visualization.Visualizer()
-
-    visualizer.create_window(
-        window_name=window_name,
-        width=width,
-        height=height,
-    )
-
-    for geometry in geometries:
-        visualizer.add_geometry(geometry)
-
-    render_options = visualizer.get_render_option()
-
-    if render_options is not None:
-        render_options.point_size = point_size
-
-    visualizer.run()
-    visualizer.destroy_window()
+    return clouds
 
 
 def _normalize_colors(
     colors: np.ndarray,
 ) -> np.ndarray:
-    """Normalize RGB values to the Open3D range of 0 to 1.
-
-    Args:
-        colors: RGB values with shape ``(N, 3)``.
-
-    Returns:
-        RGB values as floating-point values between 0 and 1.
-
-    Raises:
-        ValueError: If the color array does not have shape ``(N, 3)``.
-    """
+    """Normalize RGB values to the Open3D range of 0 to 1."""
     colors = np.asarray(
         colors,
         dtype=np.float64,
