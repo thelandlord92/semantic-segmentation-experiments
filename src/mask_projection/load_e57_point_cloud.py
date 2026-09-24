@@ -6,7 +6,7 @@ from mask_projection.mask2cloud.io import (
 )
 from mask_projection.mask2cloud.visualization import (
     create_point_cloud_geometries,
-    create_scanner_pose_geometries,
+    create_pose_geometries,
     visualize_scene,
 )
 
@@ -48,24 +48,30 @@ point_cloud_geometries = (
     )
 )
 
-scanner_geometries = (
-    create_scanner_pose_geometries(
-        poses,
-        point_clouds=clouds,
-        marker_radius=0.15,
-        coordinate_frame_size=0.75,
-    )
+pose_geometries = create_pose_geometries(
+    poses,
+    point_clouds=clouds,
+    marker_radius=0.15,
+    scanner_frame_size=0.75,
+    frustum_depth=1.0,
+    show_scanner_frames=True,
+    show_camera_frames=False,
+    show_camera_frustums=True,
 )
 
 geometries = (
     point_cloud_geometries
-    + scanner_geometries
+    + pose_geometries
 )
 
+
+#-----------------------------
+# Visualize the scene
+#-----------------------------
 
 visualize_scene(
     geometries,
     point_size=1.0,
-    show_world_frame=False,
+    show_world_frame=True,
     world_frame_size=2.0,
 )
