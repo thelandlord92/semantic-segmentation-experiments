@@ -10,11 +10,19 @@ from mask_projection.mask2cloud.visualization import (
     visualize_scene,
 )
 
+from mask_projection.mask2cloud.visualization.image_planes import (
+    create_camera_image_plane_geometries,
+)
+
 # -----------------------------
 # DIRECTORIES
 # -----------------------------
 point_cloud_dir = Path(
     r"C:\Users\bwindapo\polybox\Reality Capture Data\HXE Building\Exports\RTC\260518_Individual Setups"
+)
+
+pin_hole_dir = Path(
+    r"C:\Users\bwindapo\polybox\Reality Capture Data\HXE Building\Exports\RTC\Cube Map Images"
 )
 
 parent_dir = Path(__file__).parent.parent.parent
@@ -59,11 +67,19 @@ pose_geometries = create_pose_geometries(
     show_camera_frustums=True,
 )
 
+image_plane_geometries = create_camera_image_plane_geometries(
+    poses,
+    image_dir=pin_hole_dir,
+    point_clouds=clouds,
+    depth=1.0,
+    image_resolution=124,
+)
+
 geometries = (
     point_cloud_geometries
     + pose_geometries
+    + image_plane_geometries
 )
-
 
 #-----------------------------
 # Visualize the scene

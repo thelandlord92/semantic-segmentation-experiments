@@ -60,6 +60,7 @@ def visualize_scene(
 
     if render_options is not None:
         render_options.point_size = point_size
+        render_options.mesh_show_back_face = True
 
     visualizer.run()
     visualizer.destroy_window()
