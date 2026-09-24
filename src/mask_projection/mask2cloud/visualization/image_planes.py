@@ -1,5 +1,6 @@
 """Functions for visualizing pinhole images in 3D."""
 
+import re
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -110,8 +111,9 @@ def create_camera_image_plane_geometry(
     )
 
     colors = _sample_image_colors(
-        image_path,
-        pixels_uv,
+        camera=camera,
+        image_path=image_path,
+        pixels_uv=pixels_uv,
     )
 
     triangles = _create_grid_triangles(
@@ -139,10 +141,20 @@ def create_camera_image_plane_geometry(
 
 
 def _sample_image_colors(
+    camera: CameraPose,
     image_path: Path,
     pixels_uv: np.ndarray,
 ) -> np.ndarray:
-    """Sample RGB values from an image at UV coordinates."""
+    """Sample RGB values from an oriented image at UV coordinates.
+
+    Args:
+        camera: Camera pose used to determine image orientation.
+        image_path: Path to the source image.
+        pixels_uv: Sampled pixel coordinates with shape (N, 2).
+
+    Returns:
+        RGB values normalised to the range 0 to 1.
+    """
     image = np.asarray(
         o3d.io.read_image(
             str(image_path)
@@ -153,6 +165,11 @@ def _sample_image_colors(
         raise ValueError(
             f"Expected RGB image: {image_path}"
         )
+
+    image = _orient_image_for_camera(
+        camera=camera,
+        image=image,
+    )
 
     u_indices = np.rint(
         pixels_uv[:, 0]
@@ -259,3 +276,71 @@ def _filter_scanner_poses(
         for pose in poses
         if pose.source_e57_file in loaded_files
     ]
+
+
+def _orient_image_for_camera(
+    camera: CameraPose,
+    image: np.ndarray,
+) -> np.ndarray:
+    """Orient a pinhole image before mapping it onto its plane.
+
+    Orientation rules:
+    - Images 1 to 4:
+      rotate by 180 degrees, then mirror along the vertical axis.
+    - Images 5 and 6:
+      flip along the red scanner axis.
+
+    In the current image-plane setup, flipping along the red scanner
+    axis corresponds to a vertical image flip.
+
+    Args:
+        camera: Camera pose containing the image file name.
+        image: Image array.
+
+    Returns:
+        Oriented image array.
+    """
+    image_index = _parse_image_index(
+        camera.image_file
+    )
+
+    if 1 <= image_index <= 4:
+        image = np.rot90(
+            image,
+            2,
+        )
+        image = np.fliplr(image)
+
+    elif image_index in (5, 6):
+        image = np.flipud(image)
+
+    return np.ascontiguousarray(image)
+
+
+def _parse_image_index(
+    image_file: str,
+) -> int:
+    """Extract the pinhole image index from an image file name.
+
+    Args:
+        image_file: Image file name such as ``pose4_image5.jpg``.
+
+    Returns:
+        Image index.
+
+    Raises:
+        ValueError: If the image index cannot be parsed.
+    """
+    image_stem = Path(image_file).stem
+
+    match = re.search(
+        r"_image(\d+)$",
+        image_stem,
+    )
+
+    if match is None:
+        raise ValueError(
+            f"Could not parse image index from: {image_file}"
+        )
+
+    return int(match.group(1))

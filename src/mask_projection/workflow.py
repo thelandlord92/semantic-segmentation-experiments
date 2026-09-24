@@ -33,7 +33,7 @@ pose_dir = parent_dir / "data" / "pose_data" / "hxe" / "pose_data.json"
 # -----------------------------
 clouds = load_e57_folder(
     point_cloud_dir,
-    max_files=5,
+    max_files=20,
     include_colors=True,
 )
 
