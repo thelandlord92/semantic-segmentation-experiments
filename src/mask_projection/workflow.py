@@ -28,12 +28,14 @@ pin_hole_dir = Path(
 parent_dir = Path(__file__).parent.parent.parent
 pose_dir = parent_dir / "data" / "pose_data" / "hxe" / "pose_data.json"
 
+coco_dir = parent_dir / "data" / "ground_truth" / "hxe" / "all" / "_annotations.coco.json"
+
 # -----------------------------
 # Load point clouds from an E57
 # -----------------------------
 clouds = load_e57_folder(
     point_cloud_dir,
-    max_files=20,
+    max_files=5,
     include_colors=True,
 )
 

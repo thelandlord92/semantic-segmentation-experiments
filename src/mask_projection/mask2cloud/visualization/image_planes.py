@@ -17,6 +17,8 @@ from ..models import (
     ScannerPose,
 )
 
+from ..geometry.image_mapping import orient_camera_array
+
 
 def create_camera_image_plane_geometries(
     scanner_poses: Sequence[ScannerPose],
@@ -161,15 +163,15 @@ def _sample_image_colors(
         )
     )
 
+    image = orient_camera_array(
+        image,
+        camera.image_file,
+    )
+
     if image.ndim != 3 or image.shape[2] < 3:
         raise ValueError(
             f"Expected RGB image: {image_path}"
         )
-
-    image = _orient_image_for_camera(
-        camera=camera,
-        image=image,
-    )
 
     u_indices = np.rint(
         pixels_uv[:, 0]
@@ -276,71 +278,3 @@ def _filter_scanner_poses(
         for pose in poses
         if pose.source_e57_file in loaded_files
     ]
-
-
-def _orient_image_for_camera(
-    camera: CameraPose,
-    image: np.ndarray,
-) -> np.ndarray:
-    """Orient a pinhole image before mapping it onto its plane.
-
-    Orientation rules:
-    - Images 1 to 4:
-      rotate by 180 degrees, then mirror along the vertical axis.
-    - Images 5 and 6:
-      flip along the red scanner axis.
-
-    In the current image-plane setup, flipping along the red scanner
-    axis corresponds to a vertical image flip.
-
-    Args:
-        camera: Camera pose containing the image file name.
-        image: Image array.
-
-    Returns:
-        Oriented image array.
-    """
-    image_index = _parse_image_index(
-        camera.image_file
-    )
-
-    if 1 <= image_index <= 4:
-        image = np.rot90(
-            image,
-            2,
-        )
-        image = np.fliplr(image)
-
-    elif image_index in (5, 6):
-        image = np.flipud(image)
-
-    return np.ascontiguousarray(image)
-
-
-def _parse_image_index(
-    image_file: str,
-) -> int:
-    """Extract the pinhole image index from an image file name.
-
-    Args:
-        image_file: Image file name such as ``pose4_image5.jpg``.
-
-    Returns:
-        Image index.
-
-    Raises:
-        ValueError: If the image index cannot be parsed.
-    """
-    image_stem = Path(image_file).stem
-
-    match = re.search(
-        r"_image(\d+)$",
-        image_stem,
-    )
-
-    if match is None:
-        raise ValueError(
-            f"Could not parse image index from: {image_file}"
-        )
-
-    return int(match.group(1))
