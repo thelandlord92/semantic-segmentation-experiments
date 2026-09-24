@@ -92,6 +92,7 @@ image_plane_geometries = (
         depth=1.0,
         image_resolution=128,
         image_mode="grayscale",
+        segmentation_mode="instance",
         segmentation_opacity=0.65,
         only_segmented_images=True,
     )

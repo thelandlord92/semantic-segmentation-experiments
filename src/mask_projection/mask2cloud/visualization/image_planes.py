@@ -17,7 +17,7 @@ from ..geometry.image_mapping import (
     orient_camera_array,
 )
 from ..geometry.segmentation import (
-    decode_coco_segmentation,
+    build_camera_segmentation_masks,
     find_mask_boundary,
     sample_mask,
 )
@@ -37,6 +37,7 @@ def create_camera_image_plane_geometries(
     depth: float = 1.0,
     image_resolution: int = 64,
     image_mode: Literal["color", "grayscale"] = "color",
+    segmentation_mode: Literal["semantic", "instance"] = "instance",
     segmentation_opacity: float = 0.65,
     only_segmented_images: bool = True,
 ) -> list[o3d.geometry.TriangleMesh]:
@@ -50,6 +51,7 @@ def create_camera_image_plane_geometries(
         depth: Distance of the image planes from their camera centres.
         image_resolution: Samples along the longest image dimension.
         image_mode: Display source images in color or grayscale.
+        segmentation_mode: Type of segmentation to display.
         segmentation_opacity: Opacity of segmentation overlays.
         only_segmented_images: If True and segmentation data are supplied,
             display only images containing selected segmentations.
@@ -96,6 +98,7 @@ def create_camera_image_plane_geometries(
                 depth=depth,
                 image_resolution=image_resolution,
                 image_mode=image_mode,
+                segmentation_mode=segmentation_mode,
                 segmentation_opacity=segmentation_opacity,
             )
 
@@ -113,6 +116,7 @@ def create_camera_image_plane_geometry(
     depth: float = 1.0,
     image_resolution: int = 64,
     image_mode: Literal["color", "grayscale"] = "color",
+    segmentation_mode: Literal["semantic", "instance"] = "instance",
     segmentation_opacity: float = 0.65,
 ) -> o3d.geometry.TriangleMesh:
     """Create one coloured 3D camera image plane.
@@ -124,6 +128,7 @@ def create_camera_image_plane_geometry(
         depth: Distance of the image plane from the camera centre.
         image_resolution: Samples along the longest image dimension.
         image_mode: Display image in color or grayscale.
+        segmentation_mode: Type of segmentation to display.
         segmentation_opacity: Opacity of segmentation overlays.
 
     Returns:
@@ -174,6 +179,7 @@ def create_camera_image_plane_geometry(
             sample_width=sample_width,
             sample_height=sample_height,
             segmentation_data=segmentation_data,
+            segmentation_mode=segmentation_mode,
             opacity=segmentation_opacity,
         )
 
@@ -290,30 +296,18 @@ def _apply_segmentation_overlays(
     sample_width: int,
     sample_height: int,
     segmentation_data: CocoSegmentationData,
+    segmentation_mode: str,
     opacity: float,
 ) -> np.ndarray:
-    """Overlay COCO segmentations on sampled image colours."""
-    camera_key = extract_camera_image_key(
-        camera.image_file
+    """Overlay semantic or instance segmentations on image colours."""
+    mask_records = build_camera_segmentation_masks(
+        camera=camera,
+        segmentation_data=segmentation_data,
+        segmentation_mode=segmentation_mode,
     )
 
-    image_data = (
-        segmentation_data.images_by_camera_key.get(
-            camera_key
-        )
-    )
-
-    if image_data is None:
+    if not mask_records:
         return colors
-
-    image_id = image_data["id"]
-
-    annotations = (
-        segmentation_data.annotations_by_image_id.get(
-            image_id,
-            [],
-        )
-    )
 
     output_colors = colors.copy()
 
@@ -322,20 +316,9 @@ def _apply_segmentation_overlays(
         dtype=np.float64,
     )
 
-    for annotation in annotations:
-        mask = decode_coco_segmentation(
-            annotation,
-            image_height=image_data["height"],
-            image_width=image_data["width"],
-        )
-
-        mask = orient_camera_array(
-            mask,
-            camera.image_file,
-        )
-
+    for mask_record in mask_records:
         sampled_mask = sample_mask(
-            mask,
+            mask_record["mask"],
             pixels_uv,
             sample_width,
             sample_height,
@@ -351,15 +334,16 @@ def _apply_segmentation_overlays(
         mask_flat = sampled_mask.ravel()
         boundary_flat = boundary.ravel()
 
-        segmentation_color = _get_segmentation_color(
-            annotation["id"]
+        overlay_color = _get_overlay_color(
+            mask_record=mask_record,
+            segmentation_mode=segmentation_mode,
         )
 
         output_colors[mask_flat] = (
             (1.0 - opacity)
             * output_colors[mask_flat]
             + opacity
-            * segmentation_color
+            * overlay_color
         )
 
         output_colors[boundary_flat] = dark_edge
@@ -367,10 +351,10 @@ def _apply_segmentation_overlays(
     return output_colors
 
 
-def _get_segmentation_color(
+def _get_instance_color(
     annotation_id: int,
 ) -> np.ndarray:
-    """Generate a deterministic colour for one segmentation instance."""
+    """Generate a deterministic colour for one instance mask."""
     golden_ratio = 0.618033988749895
 
     hue = (
@@ -381,6 +365,33 @@ def _get_segmentation_color(
     red, green, blue = colorsys.hsv_to_rgb(
         hue,
         0.75,
+        1.0,
+    )
+
+    return np.array(
+        [
+            red,
+            green,
+            blue,
+        ],
+        dtype=np.float64,
+    )
+
+
+def _get_category_color(
+    category_id: int,
+) -> np.ndarray:
+    """Generate a deterministic colour for one semantic category."""
+    golden_ratio = 0.618033988749895
+
+    hue = (
+        category_id
+        * golden_ratio
+    ) % 1.0
+
+    red, green, blue = colorsys.hsv_to_rgb(
+        hue,
+        0.65,
         1.0,
     )
 
@@ -467,3 +478,30 @@ def _filter_scanner_poses(
         for pose in poses
         if pose.source_e57_file in loaded_files
     ]
+
+
+def _get_overlay_color(
+    mask_record: dict,
+    segmentation_mode: str,
+) -> np.ndarray:
+    """Get the overlay colour for one mask record."""
+    if segmentation_mode == "instance":
+        annotation_id = mask_record["annotation_id"]
+
+        if annotation_id is None:
+            raise ValueError(
+                "Instance mode requires annotation_id."
+            )
+
+        return _get_instance_color(
+            annotation_id
+        )
+
+    if segmentation_mode == "semantic":
+        return _get_category_color(
+            mask_record["category_id"]
+        )
+
+    raise ValueError(
+        "segmentation_mode must be 'semantic' or 'instance'."
+    )
