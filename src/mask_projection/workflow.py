@@ -4,6 +4,8 @@ from mask_projection.mask2cloud.io import (
     load_e57_folder,
     load_pose_data,
 )
+from mask_projection.mask2cloud.io.coco import load_coco_segmentations
+
 from mask_projection.mask2cloud.visualization import (
     create_point_cloud_geometries,
     create_pose_geometries,
@@ -35,7 +37,7 @@ coco_dir = parent_dir / "data" / "ground_truth" / "hxe" / "all" / "_annotations.
 # -----------------------------
 clouds = load_e57_folder(
     point_cloud_dir,
-    max_files=5,
+    max_files=30,
     include_colors=True,
 )
 
@@ -46,6 +48,18 @@ for cloud in clouds:
 # # Load the pose data from the JSON file
 # -----------------------------
 poses = load_pose_data(pose_dir)
+
+
+# -----------------------------
+# Load COCO segmentation data
+# -----------------------------
+segmentation_data = load_coco_segmentations(
+    coco_dir,
+    segmentation_categories=[
+        "timber beams",
+        "timber columns",
+    ],
+)
 
 
 #-----------------------------
@@ -69,12 +83,18 @@ pose_geometries = create_pose_geometries(
     show_camera_frustums=True,
 )
 
-image_plane_geometries = create_camera_image_plane_geometries(
-    poses,
-    image_dir=pin_hole_dir,
-    point_clouds=clouds,
-    depth=1.0,
-    image_resolution=124,
+image_plane_geometries = (
+    create_camera_image_plane_geometries(
+        poses,
+        image_dir=pin_hole_dir,
+        point_clouds=clouds,
+        segmentation_data=segmentation_data,
+        depth=1.0,
+        image_resolution=128,
+        image_mode="grayscale",
+        segmentation_opacity=0.65,
+        only_segmented_images=True,
+    )
 )
 
 geometries = (
